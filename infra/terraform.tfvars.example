@@ -1,0 +1,16 @@
+yc_config = {
+  token     = ""
+  cloud_id  = ""
+  folder_id = ""
+  zone      = "ru-central1-a"
+}
+yc_instance_user        = "a2k-ubuntu"
+yc_instance_name        = "a2k-airflow-cluster"
+yc_network_name         = "a2k-airflow-network"
+yc_subnet_name          = "a2k-airflow-subnet"
+yc_service_account_name = "a2k-airflow-cluster-sa"
+yc_bucket_name          = "a2k-otus-bucket"
+yc_storage_endpoint_url = "https://storage.yandexcloud.net"
+admin_password          = "Большая буква маленькие буквы цифры и знак -" # pass
+public_key_path         = ""
+private_key_path        = ""
