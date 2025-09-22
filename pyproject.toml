@@ -3,7 +3,7 @@ name = "a2k-procar"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.11.*"
 dependencies = [
     "boto3==1.39.12",
     "cryptography==45.0.5",

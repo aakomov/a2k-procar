@@ -1,12 +1,6 @@
-# Запуск:
-### spark-submit --master yarn car_data_cleaning.py --bucket your-bucket-name
-###
-### Скрипт: car_data_cleaning.py
-### Обрабатывает датасет "car data.csv" (Kaggle) в Spark и сохраняет в Parquet
-
 from argparse import ArgumentParser
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when, lit, avg, count, expr
+from pyspark.sql.functions import col, when, lit, avg, count, first
 from pyspark.sql.types import IntegerType, DoubleType
 from datetime import datetime
 
@@ -15,9 +9,12 @@ def main():
     parser.add_argument("--bucket", required=True, help="S3 bucket name")
     args = parser.parse_args()
     bucket_name = args.bucket
+    
+    input_path = f"s3a://{bucket_name}/input_data/car data.csv"
+    output_path = f"s3a://{bucket_name}/output_data/car_data_cls.parquet"
 
-    input_path = f"s3a://{bucket_name}/input_data/*.csv"
-    output_path = f"s3a://{bucket_name}/output_data/car_data.parquet"
+    #input_path = "/home/notai/otus/kp_a2k/a2k-procar/data/input_data/car data.csv"
+    #output_path = "/home/notai/otus/kp_a2k/a2k-procar/data/output_data/car_data_cls.parquet"
 
     spark = SparkSession.builder \
         .appName("CarDataCleaning") \
@@ -28,69 +25,83 @@ def main():
         df = spark.read.csv(
             input_path,
             header=True,
-            inferSchema=True,
-            sep=','
+            inferSchema=True
         )
 
-        print(f"Загружено строк: {df.count()}, колонок: {len(df.columns)}")
-
-        # === Обработка данных ===
+        print(f"Загружено: {df.count()} строк")
 
         # 1. Удаляем записи без Selling_Price
         df = df.filter(col("Selling_Price").isNotNull())
 
-        # 2. Фильтрация выбросов по Selling_Price
-        df = df.filter((col("Selling_Price") > 1.0) & (col("Selling_Price") < 10.0))
+        # 2. Фильтрация выбросов
+        df = df.filter(
+            (col("Selling_Price") > 1.00) & 
+            (col("Selling_Price") < 10.00) &
+            (col("Kms_Driven") > 0) & 
+            (col("Kms_Driven") < 1000000)
+        )
 
-        # 3. Фильтрация выбросов по Kms_Driven
-        df = df.filter((col("Kms_Driven") > 0) & (col("Kms_Driven") < 1000000))
-
-        # 4. Заполнение пропусков в числовых колонках медианой
-        numeric_cols = ["Year", "Kms_Driven"]
+        # 3. Заполнение пропусков в числовых колонках (средним)
+        numeric_cols = ["Year", "Kms_Driven", "Present_Price"]
         for col_name in numeric_cols:
-            median_val = df.approxQuantile(col_name, [0.5], 0.001)[0]
-            df = df.withColumn(
-                col_name,
-                when(col(col_name).isNull(), lit(median_val)).otherwise(col(col_name))
-            )
+            if col_name in df.columns:
+                mean_val = df.agg(avg(col_name)).first()[0] or 0
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull(), lit(mean_val)).otherwise(col(col_name))
+                )
 
-        # 5. Заполнение пропусков в категориальных колонках модой
+        # 4. Заполнение пропусков в категориальных колонках
         categorical_cols = ["Fuel_Type", "Seller_Type", "Transmission", "Owner"]
         for col_name in categorical_cols:
-            mode_val = (
-                df.groupBy(col_name)
-                  .agg(count("*").alias("cnt"))
-                  .orderBy(col("cnt").desc())
-                  .limit(1)
-                  .collect()[0][0]
-            )
-            df = df.withColumn(
-                col_name,
-                when(col(col_name).isNull(), lit(mode_val)).otherwise(col(col_name))
-            )
+            if col_name in df.columns:
+                mode_row = (
+                    df.groupBy(col_name)
+                      .agg(count("*").alias("cnt"))
+                      .orderBy(col("cnt").desc())
+                      .first()
+                )
+                mode_val = mode_row[0] if mode_row else "unknown"
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull(), lit(mode_val)).otherwise(col(col_name))
+                )
 
-        # 6. Валидация года выпуска
+        # 5. Валидация года выпуска
         current_year = datetime.now().year
         df = df.filter((col("Year") > 1950) & (col("Year") <= current_year))
 
-        # 7. Feature engineering
+        # 6. Feature engineering
         df = df.withColumn("Car_Age", lit(current_year) - col("Year"))
-        df = df.withColumn("Kms_Per_Year", col("Kms_Driven") / (col("Car_Age") + lit(1)))
+        df = df.withColumn("Kms_Per_Year", 
+                          when(col("Car_Age") > 0, col("Kms_Driven") / col("Car_Age"))
+                          .otherwise(col("Kms_Driven")))
 
-        # 8. Приведение типов
-        df = df.withColumn("Year", col("Year").cast(IntegerType()))
-        df = df.withColumn("Kms_Driven", col("Kms_Driven").cast(IntegerType()))
-        df = df.withColumn("Selling_Price", col("Selling_Price").cast(DoubleType()))
+        # 7. Приведение типов
+        type_casts = {
+            "Year": IntegerType(),
+            "Kms_Driven": IntegerType(), 
+            "Selling_Price": DoubleType(),
+            "Present_Price": DoubleType(),
+            "Car_Age": IntegerType()
+        }
+        
+        for col_name, dtype in type_casts.items():
+            if col_name in df.columns:
+                df = df.withColumn(col_name, col(col_name).cast(dtype))
 
-        print(f"Очищенный датасет: {df.count()} строк, {len(df.columns)} колонок")
+        print(f"Очищено: {df.count()} строк")
 
-        # === Сохранение в Parquet ===
-        print(f"Сохранение очищенных данных в {output_path}")
-        df.write.parquet(output_path, mode="overwrite")
-        print("Обработка данных успешно завершена!")
+        # 8. Сохранение
+        df.write \
+            .option("compression", "snappy") \
+            .mode("overwrite") \
+            .parquet(output_path)
+
+        print("✅ Данные успешно сохранены!")
 
     except Exception as e:
-        print(f"Ошибка: {str(e)}")
+        print(f"❌ Ошибка: {str(e)}")
         raise e
 
     finally:

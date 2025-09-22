@@ -19,9 +19,12 @@ preprocess_task = BashOperator(
 ```
 
 Run local python test_preprocessing_local.py
+
 # В Jupyter клетке
 %run test_preprocessing_local.py
 
+# локальный запуск в spark
+spark-submit --master local[2] car_data_cleaning.py
 
 
 Загрузка переменных
