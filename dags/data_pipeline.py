@@ -145,7 +145,7 @@ with DAG(
     # 2 этап: запуск задания PySpark
     poke_spark_processing = DataprocCreatePysparkJobOperator(
         task_id="dp-cluster-pyspark-task",
-        main_python_file_uri=f"s3a://{S3_SRC_BUCKET}/src/fraud_data_cleaning.py",
+        main_python_file_uri=f"s3a://{S3_SRC_BUCKET}/src/data_preprocessing_spark_procar.py",
         connection_id=YC_SA_CONNECTION.conn_id,
         args=["--bucket", S3_BUCKET_NAME],
         dag=dag,
