@@ -84,8 +84,8 @@ def preprocess_data(df):
     
     # 2. Обработка выбросов в цене и пробеге
     # Удаляем явные выбросы (например, цены < 1000 или > 100000000)
-    df_clean = df_clean[(df_clean['Selling_Price'] > 1000) & 
-                       (df_clean['Selling_Price'] < 100000000)]
+    df_clean = df_clean[(df_clean['Selling_Price'] > 1.00) & 
+                       (df_clean['Selling_Price'] < 10.00)]
     
     # Обработка пробега
     df_clean = df_clean[(df_clean['Kms_Driven'] > 0) & 

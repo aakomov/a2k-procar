@@ -12,9 +12,9 @@ def test_preprocessing_local():
     # os.makedirs('output_data', exist_ok=True)
     
     # 1. Загрузка локального файла
-    input_file = '../data/input_data/car data.csv'
-    output_file = '../data/output_data/car_data_cleaned.parquet'
-    stats_file = '../data/output_data/processing_stats.parquet'
+    input_file = '/home/notai/otus/kp_a2k/a2k-procar/data/input_data/car data.csv'
+    output_file = '/home/notai/otus/kp_a2k/a2k-procar/data/output_data/car_data_cleaned.parquet'
+    stats_file = '/home/notai/otus/kp_a2k/a2k-procar/data/output_data/processing_stats.parquet'
     
     print(f"Загрузка данных из файла: {input_file}")
     
