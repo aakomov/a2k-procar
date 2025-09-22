@@ -1,4 +1,29 @@
 
+
+В Airflow DAG add for run data_preprocessing.py:
+
+```
+# В вашем DAG файле
+preprocess_task = BashOperator(
+    task_id='preprocess_data',
+    bash_command='''
+        python /path/to/data_preprocessing.py \
+          --s3-bucket="ml-project-cars-bucket" \
+          --input-key="raw/car_data.csv" \
+          --output-key="processed/car_data_cleaned_{{ ds }}.parquet" \
+          --aws-access-key-id="{{ var.value.AWS_ACCESS_KEY }}" \
+          --aws-secret-access-key="{{ var.value.AWS_SECRET_KEY }}"
+    ''',
+    dag=dag,
+)
+```
+
+Run local python test_preprocessing_local.py
+# В Jupyter клетке
+%run test_preprocessing_local.py
+
+
+
 Загрузка переменных
 ![Схема1](./img/otus%20airflow.JPG)
 
