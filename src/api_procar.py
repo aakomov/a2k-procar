@@ -1,16 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import mlflow.pyfunc
+import mlflow.sklearn
 
-app = FastAPI()
+app = FastAPI(title="a2k_procar API")
 
 class CarFeatures(BaseModel):
     Year: int
     Present_Price: float
     Kms_Driven: int
 
-# Загружаем модель из MLflow
-model = mlflow.pyfunc.load_model("models:/car-price/1")
+model = mlflow.sklearn.load_model("model")
 
 @app.post("/predict")
 def predict(features: CarFeatures):

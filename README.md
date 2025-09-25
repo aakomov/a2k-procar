@@ -76,6 +76,11 @@ sudo apt install docker.io docker-compose python3-pip -y
 pip install -r requirements.txt
 ```
 
+```bash
+uv sync
+```
+
+
 ### 2. Запуск MinIO (локальное S3)
 ```bash
 cd infra/minio
@@ -94,6 +99,10 @@ docker-compose up -d
 cd infra/airflow
 docker-compose up -d
 ```
+#### Запуск Airflow + API
+```bash
+docker-compose -f docker-compose.airflow.yml up -d
+```
 
 UI: http://localhost:8080  
 Логин: airflow / Пароль: airflow
@@ -103,6 +112,11 @@ UI: http://localhost:8080
 cd infra/mlflow
 docker-compose up -d
 ```
+#### Запуск MLflow окружения
+```bash
+docker-compose -f docker-compose.mlflow.yml up -d
+```
+
 
 UI: http://localhost:5000
 
@@ -137,6 +151,10 @@ python scripts/train.py
 docker build -t car-price-api .
 docker run -p 8000:8000 car-price-api
 ```
+#### Проверка API
+```bash
+curl -X POST "http://localhost:8000/predict" -H "Content-Type: application/json" -d '{"mileage": 30000, "year": 2020}'
+
 
 API доступно на http://localhost:8000
 
