@@ -46,6 +46,23 @@ spark-submit --master local[2] car_data_cleaning.py
 ![Схема6](./img/otus%20airflow6.JPG)
 
 
+# Системные утилиты
+sudo apt update && sudo apt install -y docker.io docker-compose openjdk-11-jdk python3 python3-venv python3-pip git curl
+
+# Docker-права
+sudo usermod -aG docker $USER
+# выйдите и зайдите заново или newgrp docker
+
+# k3d (kubernetes lightweight)
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+# venv для проекта
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+
+
+
 # MLOps Car Price Prediction Project
 
 ## Запуск проекта локально

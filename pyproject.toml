@@ -1,7 +1,7 @@
 [project]
 name = "a2k-procar"
 version = "0.1.0"
-description = "Add your description here"
+description = "ML project for car price prediction"
 readme = "README.md"
 requires-python = "==3.11.*"
 dependencies = [
@@ -19,4 +19,13 @@ dependencies = [
     "seaborn>=0.13.2",
     "pyarrow>=16.0.0",
     "pyspark==3.4.0",
+    "mlflow",
+    "feast",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "apache-airflow",
+    "confluent-kafka",
+    "prometheus-client",
+    "jupyter",
 ]
