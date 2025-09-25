@@ -3,7 +3,7 @@
 В Airflow DAG add for run data_preprocessing.py:
 
 ```
-# В вашем DAG файле
+# в DAG файл
 preprocess_task = BashOperator(
     task_id='preprocess_data',
     bash_command='''
@@ -20,10 +20,10 @@ preprocess_task = BashOperator(
 
 Run local python test_preprocessing_local.py
 
-# В Jupyter клетке
+# В Jupyter
 %run test_preprocessing_local.py
 
-# локальный запуск в spark
+# Локальный запуск в spark
 spark-submit --master local[2] car_data_cleaning.py
 
 
@@ -44,4 +44,109 @@ spark-submit --master local[2] car_data_cleaning.py
 
 Успешное выполнение fraud_data_cleaning.py из дага
 ![Схема6](./img/otus%20airflow6.JPG)
+
+
+# MLOps Car Price Prediction Project
+
+## Запуск проекта локально
+
+Ниже пошаговые команды, которые нужно выполнить для запуска проекта.
+
+### 1. Установка зависимостей
+```bash
+sudo apt update
+sudo apt install docker.io docker-compose python3-pip -y
+pip install -r requirements.txt
+```
+
+### 2. Запуск MinIO (локальное S3)
+```bash
+cd infra/minio
+docker-compose up -d
+```
+
+Доступ:
+- UI: http://localhost:9001
+- Логин: minioadmin
+- Пароль: minioadmin
+
+Создайте bucket: `car-price`
+
+### 3. Запуск Airflow
+```bash
+cd infra/airflow
+docker-compose up -d
+```
+
+UI: http://localhost:8080  
+Логин: airflow / Пароль: airflow
+
+### 4. Запуск MLflow
+```bash
+cd infra/mlflow
+docker-compose up -d
+```
+
+UI: http://localhost:5000
+
+### 5. Запуск Kafka
+```bash
+cd infra/kafka
+docker-compose up -d
+```
+
+### 6. Запуск Prometheus & Grafana
+```bash
+cd infra/prometheus && docker-compose up -d
+cd ../grafana && docker-compose up -d
+```
+
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
+
+### 7. Запуск Feast
+```bash
+cd infra/feast
+feast init feature_repo
+```
+
+### 8. Локальное обучение модели
+```bash
+python scripts/train.py
+```
+
+### 9. Запуск REST API модели
+```bash
+docker build -t car-price-api .
+docker run -p 8000:8000 car-price-api
+```
+
+API доступно на http://localhost:8000
+
+---
+
+## Структура проекта
+
+```
+mlops_car_price_project/
+├── data/
+│   ├── raw/                 # Сырые данные
+│   └── processed/           # Обработанные данные
+├── dags/                    # DAGs для Airflow
+├── scripts/                 # Python-скрипты (train.py, preprocess.py и т.д.)
+├── models/                  # Обученные модели
+├── notebooks/               # Jupyter notebooks
+├── infra/
+│   ├── minio/               # docker-compose для MinIO
+│   ├── airflow/             # docker-compose для Airflow
+│   ├── mlflow/              # docker-compose для MLflow
+│   ├── kafka/               # docker-compose для Kafka
+│   ├── prometheus/          # docker-compose для Prometheus
+│   ├── grafana/             # docker-compose для Grafana
+│   └── feast/               # конфиги Feast
+├── k8s/                     # Манифесты Kubernetes
+├── .github/workflows/       # CI/CD пайплайны
+└── requirements.txt         # Python зависимости
+```
+
 
