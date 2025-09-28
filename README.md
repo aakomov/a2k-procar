@@ -1,5 +1,28 @@
 
 
+Run local mlflow
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ cd infra-local/mlflow/
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/src$ cd ../infra-local/mlflow/
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose down
+
+```
+
+Обучение модели
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ cd ../../src/
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/src$ python model_train_procar.py --n-estimators 50 --max-depth 7
+
+python3 src/train.py --model-name url_classifier
+python model_train_procar.py --n-estimators 200 --max-depth 15
+```
+
+
+
+
+
 В Airflow DAG add for run data_preprocessing.py:
 
 ```
