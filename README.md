@@ -22,8 +22,10 @@ python3 model_train_procar.py --model-name url_classifier
 python model_train_procar.py --n-estimators 200 --max-depth 15
 ```
 
-
-
+```
+docker build -t carprice-service:latest .
+docker run -d --name carprice -p 8000:8000 carprice-service:latest
+```
 
 
 В Airflow DAG add for run data_preprocessing.py:
