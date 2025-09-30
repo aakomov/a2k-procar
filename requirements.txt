@@ -19,3 +19,4 @@ apache-airflow
 confluent-kafka
 prometheus-client
 jupyter
+kafka-python

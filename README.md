@@ -1,13 +1,16 @@
 
+Очистка данных. Запуск airflow, spark-кластера и s3 в облаке
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra$ make apply
+```
 
-Run local mlflow
+Локальный запуск mlflow и minio
 ```bash
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ cd infra-local/mlflow/
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
 
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/src$ cd ../infra-local/mlflow/
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose down
-
 ```
 
 Обучение модели
@@ -15,7 +18,7 @@ Run local mlflow
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ cd ../../src/
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/src$ python model_train_procar.py --n-estimators 50 --max-depth 7
 
-python3 src/train.py --model-name url_classifier
+python3 model_train_procar.py --model-name url_classifier
 python model_train_procar.py --n-estimators 200 --max-depth 15
 ```
 
