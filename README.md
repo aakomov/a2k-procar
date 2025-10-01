@@ -27,6 +27,13 @@ docker build -t carprice-service:latest .
 docker run -d --name carprice -p 8000:8000 carprice-service:latest
 ```
 
+Запуск fastapi
+```
+uvicorn src.app:app --reload
+
+http://127.0.0.1:8000/
+http://127.0.0.1:8000/docs#/
+```
 
 В Airflow DAG add for run data_preprocessing.py:
 

@@ -5,8 +5,12 @@ import mlflow.pyfunc
 import os
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
+import mlflow
 
-MODEL_URI = os.environ.get("MODEL_URI", "models:/car_price_model/Production")
+mlflow.set_tracking_uri("http://localhost:5000")
+
+# MODEL_URI = os.environ.get("MODEL_URI", "models:/car_price_model/Production")
+MODEL_URI = os.environ.get("MODEL_URI", "models:/car_price_model@champion")
 model = mlflow.pyfunc.load_model(MODEL_URI)
 
 app = FastAPI(title="Car Price Predictor")

@@ -139,12 +139,23 @@ def train_model(
 
         if register_as_prod:
             version = client.get_latest_versions(model_name, stages=[])[-1].version
+
+            # alias
             client.set_registered_model_alias(
                 name=model_name,
                 alias="champion",
                 version=version,
             )
-            print(f"Модель зарегистрирована как v{version} и получила alias 'champion'")
+
+            # stage
+            client.transition_model_version_stage(
+                name=model_name,
+                version=version,
+                stage="Production",
+                archive_existing_versions=True
+            )
+
+    print(f"Модель v{version} переведена в Production и получила alias 'champion'")
 
     print("\n" + "=" * 60)
     print("ОБУЧЕНИЕ ЗАВЕРШЕНО УСПЕШНО")
