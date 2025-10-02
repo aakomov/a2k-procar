@@ -20,3 +20,5 @@ confluent-kafka
 prometheus-client
 jupyter
 kafka-python
+loguru
+invoke

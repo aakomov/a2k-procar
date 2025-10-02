@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a2k-procar
+  namespace: a2k-procar
+  labels:
+    app: a2k-procar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: a2k-procar
+  template:
+    metadata:
+      labels:
+        app: a2k-procar
+    spec:
+      containers:
+        - name: a2k-procar
+          image: aakomov/a2k-procar:prod
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"

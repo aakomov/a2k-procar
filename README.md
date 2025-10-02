@@ -22,6 +22,93 @@ python3 model_train_procar.py --model-name url_classifier
 python model_train_procar.py --n-estimators 200 --max-depth 15
 ```
 
+Работающий FastAPI
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ cd infra-local/a2k-docker-rest/
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ python3 src/pipeline.py
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ uvicorn src.app:app --port 8000 --reload
+```
+Docker local
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ docker bui
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make run-prod
+
+http://127.0.0.1:8000/
+http://localhost:8888/tree
+http://localhost:9091/login
+http://localhost:5000/
+
+```
+
+Грузим образ на docker hub
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ docker login -u aakomov
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ docker tag a2k-procar:prod aakomov/a2k-procar:prod
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ docker push aakomov/a2k-procar:prod
+```
+
+k8s
+```bash
+notai@notaihost:~$ sudo snap install kubectl --classic
+
+
+https://helm.sh/docs/intro/install/
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ chmod 700 get_helm.sh
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ ./get_helm.sh
+
+
+notai@notaihost:~$ yc managed-kubernetes cluster get-credentials --id catphenfv8qti7f2fmhi --external
+notai@notaihost:~$ export KUBE_CONFIG=~/.kube/config ("важно знать в каком контексте находимся")
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-install-ingress
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl get all -n ingress-nginx
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/namespace.yaml
+#namespace/a2k-procar created
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl config set-context --current --namespace=a2k-procar
+#Context "yc-k8s-cluster" modified.
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/deployment.yaml
+#deployment.apps/a2k-procar created
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/service.yaml
+#service/a2k-procar created
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/ingress.yaml
+#ingress.networking.k8s.io/a2k-procar created
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl get pods
+#NAME                          READY   STATUS    RESTARTS   AGE
+#a2k-procar-7b5d6557bc-gjxgs   1/1     Running   0          51s
+
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/ingress.yaml
+#ingress.networking.k8s.io "a2k-procar" deleted from a2k-procar namespace
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/service.yaml
+#service "a2k-procar" deleted from a2k-procar namespace
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/deployment.yaml
+#deployment.apps "a2k-procar" deleted from a2k-procar namespace
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/namespace.yaml
+#namespace "a2k-procar" deleted
+
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl get all
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-deploy
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl get all -n a2k-procar
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 docker build -t carprice-service:latest .
 docker run -d --name carprice -p 8000:8000 carprice-service:latest
@@ -34,6 +121,19 @@ uvicorn src.app:app --reload
 http://127.0.0.1:8000/
 http://127.0.0.1:8000/docs#/
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 В Airflow DAG add for run data_preprocessing.py:
 

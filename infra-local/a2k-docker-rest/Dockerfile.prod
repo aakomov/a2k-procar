@@ -1,0 +1,17 @@
+FROM python:3.11.4-slim-bookworm
+
+WORKDIR /app
+
+COPY requirements-a2k.txt requirements-a2k.txt
+
+RUN pip install --no-cache-dir -r requirements-a2k.txt
+
+COPY scripts scripts
+RUN chmod +x scripts/*.sh
+
+ENV PYTHONPATH="/app"
+
+COPY data /data
+COPY src src
+
+CMD ["bash", "scripts/entrypoint-prod.sh"]

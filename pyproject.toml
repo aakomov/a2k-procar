@@ -3,6 +3,8 @@ name = "a2k-procar"
 version = "0.1.0"
 description = "ML project for car price prediction"
 readme = "README.md"
+authors = ["aakomov"]
+license = "MIT"
 requires-python = "==3.11.*"
 dependencies = [
     "boto3==1.39.12",
@@ -21,12 +23,14 @@ dependencies = [
     "pyspark==3.4.0",
     "mlflow",
     "feast",
-    "fastapi",
-    "uvicorn",
-    "pydantic",
+    "fastapi==0.115.0",
+    "uvicorn==0.31.0",
+    "pydantic==2.9.2",
     "apache-airflow",
     "confluent-kafka",
     "prometheus-client",
     "jupyter",
     "kafka-python",
+    "loguru==0.7.2",
+    "invoke==2.2.0",
 ]

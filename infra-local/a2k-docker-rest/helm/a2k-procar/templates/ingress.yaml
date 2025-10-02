@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: a2k-procar
+  namespace: a2k-procar
+  labels:
+    app: a2k-procar
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: a2k-procar
+                port:
+                  number: 80
