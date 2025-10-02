@@ -30,7 +30,7 @@ python model_train_procar.py --n-estimators 200 --max-depth 15
 ```
 Docker local
 ```bash
-(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ docker bui
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make build-prod
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make run-prod
 
 http://127.0.0.1:8000/

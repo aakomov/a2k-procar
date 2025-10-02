@@ -36,7 +36,7 @@ up:
 	docker compose up --build
 
 build-prod:
-	docker build -t a2k-procar:0.0.1 -f Dockerfile.prod .
+	docker build -t a2k-procar:prod -f Dockerfile.prod .
 
 run-prod:
 	docker run \
