@@ -2,9 +2,9 @@ FROM python:3.11.4-slim-bookworm
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY requirements-a2k-dev.txt requirements-a2k-dev.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-a2k-dev.txt
 
 COPY scripts scripts
 RUN chmod +x scripts/*.sh

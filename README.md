@@ -25,6 +25,7 @@ python model_train_procar.py --n-estimators 200 --max-depth 15
 Работающий FastAPI
 ```bash
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ cd infra-local/a2k-docker-rest/
+export PYTHONPATH=$(pwd)
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ python3 src/pipeline.py
 (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar$ uvicorn src.app:app --port 8000 --reload
 ```
@@ -98,7 +99,33 @@ notai@notaihost:~$ export KUBE_CONFIG=~/.kube/config ("важно знать в 
 ```
 
 
+Prometheus
+```bash
 
+Перед этим запустить k8s
+minikube start
+
+helm list
+
+(otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel/service$ 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n default
+
+(otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel/service$ kubectl --namespace default get secrets monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+(otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel/service$ kubectl --namespace default get pods
+(otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel$ helm uninstall monitoring -n default
+
+
+
+
+на 6 скрине нужно форварднуть графану и прометей на рандомный порт (58 минута)
+
+grafana
+    admin
+    prom-operator
+
+```
 
 
 
