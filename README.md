@@ -118,6 +118,32 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n 
 
 
 
+kubectl apply -f monitoring-a2k-procar.yml
+kubectl get servicemonitors -n monitoring
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+http://localhost:9090
+kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
+http://localhost:3000
+
+Войти (логин admin, пароль можно узнать:
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode)
+
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{"Year":2018,"Present_Price":9.85,"Kms_Driven":40000,"Owner":0,"Car_Age":5,"Kms_Per_Year":8000,"Fuel_Type":"Petrol","Seller_Type":"Dealer","Transmission":"Manual"}'
+
+
+### debug
+## kubectl get pods -n a2k-procar
+## kubectl logs -n a2k-procar deployment/a2k-procar
+## kubectl logs -n a2k-procar <pod_name>
+## kubectl get svc -n a2k-procar
+
+kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
+
+
+
+
 
 на 6 скрине нужно форварднуть графану и прометей на рандомный порт (58 минута)
 

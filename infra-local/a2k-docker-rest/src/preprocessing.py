@@ -8,7 +8,7 @@ def load_data() -> pd.DataFrame:
     Load pre-cleaned car dataset.
     Expected file: ../data/output_data/car_data_cleaned.parquet
     """
-    df = pd.read_parquet("./data/output_data/car_data_cleaned.parquet")
+    df = pd.read_parquet("../data/output_data/car_data_cleaned.parquet")
     return df
 
 

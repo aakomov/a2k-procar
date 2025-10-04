@@ -46,8 +46,8 @@ run-prod:
 		a2k-procar:prod
 
 push-prod:
-	docker tag a2k-procar:0.0.1 aakomov/a2k-procar:0.0.1
-	docker push aakomov/a2k-procar:0.0.1
+	docker tag a2k-procar:prod aakomov/a2k-procar:prod
+	docker push aakomov/a2k-procar:prod
 
 helm-install-ingress:
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx

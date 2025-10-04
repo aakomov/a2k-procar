@@ -2,9 +2,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: a2k-procar
-  namespace: monitoring
+  namespace: a2k-procar
   labels:
-    release: monitoring  # имя релиза kube-prometheus-stack
+    release: monitoring
 spec:
   selector:
     matchLabels:
@@ -15,5 +15,5 @@ spec:
   endpoints:
     - port: http
       path: /metrics
-      interval: 30s
+      interval: 15s
       scheme: http
