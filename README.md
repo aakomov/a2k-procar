@@ -139,17 +139,20 @@ curl -X POST "http://localhost:8000/predict" \
 ## kubectl logs -n a2k-procar <pod_name>
 ## kubectl get svc -n a2k-procar
 
+## kubectl exec -it -n a2k-procar $(kubectl get pod -n a2k-procar -l app=a2k-procar -o name | head -1) -- sh
+## apt update && apt install -y curl
+## curl -v 127.0.0.1:8000/metrics
+
+## minikube ssh docker images | grep aakomov
+## inikube ssh docker rmi aakomov/a2k-procar:prod
+
+
 kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/monitoring-a2k-procar.yaml
 
-
-
-
-
-на 6 скрине нужно форварднуть графану и прометей на рандомный порт (58 минута)
-
-grafana
-    admin
-    prom-operator
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/monitoring-a2k-procar.yaml
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ helm uninstall monitoring -n a2k-procar
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-destroy
 
 ```
 
@@ -173,6 +176,10 @@ uvicorn src.app:app --reload
 
 http://127.0.0.1:8000/
 http://127.0.0.1:8000/docs#/
+http://127.0.0.1:8000/metrics
+prometheus http://localhost:9090/
+grafana http://localhost:3000/
+
 ```
 
 
