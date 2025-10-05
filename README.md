@@ -115,15 +115,23 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n 
 (otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel/service$ kubectl --namespace default get secrets monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 (otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel/service$ kubectl --namespace default get pods
 (otus-ml-skel) notai@notaihost:~/otus/39/otus-ml-skel$ helm uninstall monitoring -n default
-
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/monitoring-a2k-procar.yaml
 
 
 kubectl apply -f monitoring-a2k-procar.yml
 kubectl get servicemonitors -n monitoring
-kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n a2k-procar 9090:9090
 http://localhost:9090
-kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
+kubectl port-forward svc/monitoring-grafana -n a2k-procar 3000:80
 http://localhost:3000
+kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
+
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/monitoring-a2k-procar.yaml
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ helm uninstall monitoring -n a2k-procar
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-destroy
+
 
 Войти (логин admin, пароль можно узнать:
 kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode)
@@ -147,32 +155,8 @@ curl -X POST "http://localhost:8000/predict" \
 ## inikube ssh docker rmi aakomov/a2k-procar:prod
 
 
-kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
-(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/monitoring-a2k-procar.yaml
-
-(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/monitoring-a2k-procar.yaml
-(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ helm uninstall monitoring -n a2k-procar
-(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-destroy
 
 ```
-
-
-
-
-
-
-
-
-
-
-```
-docker build -t carprice-service:latest .
-docker run -d --name carprice -p 8000:8000 carprice-service:latest
-```
-
-Запуск fastapi
-```
-uvicorn src.app:app --reload
 
 http://127.0.0.1:8000/
 http://127.0.0.1:8000/docs#/
@@ -180,19 +164,20 @@ http://127.0.0.1:8000/metrics
 prometheus http://localhost:9090/
 grafana http://localhost:3000/
 
+
+KAFKA
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/kafka$ docker-compose -f docker-compose.yml up -d
+
+
+python kafka_producer.py --bootstrap localhost:9092 --n 5
+http://localhost:9003 → кластер → Topics → input_car_data → Messages.
+
+python kafka_consumer.py --bootstrap localhost:9092 --input_topic input_car_data --output_topic predictions
+UI → predictions → Messages.
+
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 В Airflow DAG add for run data_preprocessing.py:

@@ -1,90 +1,60 @@
 #!/usr/bin/env python
-"""OTUS BigData ML kafka producer example (adapted for local PLAINTEXT Kafka)"""
+"""Kafka producer for a2k-procar car price prediction"""
 
 import json
-from typing import Dict, NamedTuple
-import logging
 import random
-import datetime
 import argparse
-from collections import namedtuple
+import datetime
+from kafka import KafkaProducer
 
-from kafka import KafkaProducer, errors as kafka_errors
-
-MAX_USER_ID = 100
-MAX_PAGE_ID = 10
-
-
-class RecordMetadata(NamedTuple):
-    topic: str
-    partition: int
-    offset: int
+FUEL_TYPES = ["Petrol", "Diesel", "CNG"]
+SELLER_TYPES = ["Dealer", "Individual"]
+TRANSMISSIONS = ["Manual", "Automatic"]
 
 
-def main():
-    argparser = argparse.ArgumentParser(description=__doc__)
-    argparser.add_argument(
-        "-b",
-        "--bootstrap_server",
-        default="localhost:29093",
-        help="Kafka server address:port",
-    )
-    argparser.add_argument(
-        "-t", "--topic", default="clicks", help="Kafka topic to produce to"
-    )
-    argparser.add_argument(
-        "-n",
-        default=10,
-        type=int,
-        help="Number of messages to send",
-    )
+def generate_car_data():
+    """Генерация случайных данных автомобиля"""
+    year = random.randint(2005, 2022)
+    present_price = round(random.uniform(2.0, 20.0), 2)
+    kms_driven = random.randint(10_000, 200_000)
+    owner = random.randint(0, 2)
+    car_age = datetime.datetime.now().year - year
+    kms_per_year = round(kms_driven / max(car_age, 1), 1)
 
-    args = argparser.parse_args()
-
-    producer = KafkaProducer(
-        bootstrap_servers=args.bootstrap_server,
-        value_serializer=serialize,
-    )
-
-    try:
-        for i in range(args.n):
-            record_md = send_message(producer, args.topic)
-            print(
-                f"Msg sent. Topic: {record_md.topic}, partition:{record_md.partition}, offset:{record_md.offset}"
-            )
-    except kafka_errors.KafkaError as err:
-        logging.exception(err)
-
-    producer.flush()
-    producer.close()
-
-
-def send_message(producer: KafkaProducer, topic: str) -> RecordMetadata:
-    click = generate_click()
-    future = producer.send(
-        topic=topic,
-        key=str(click["page_id"]).encode("ascii"),
-        value=click,
-    )
-
-    record_metadata = future.get(timeout=1)
-    return RecordMetadata(
-        topic=record_metadata.topic,
-        partition=record_metadata.partition,
-        offset=record_metadata.offset,
-    )
-
-
-def generate_click() -> Dict:
     return {
-        "ts": datetime.datetime.now().isoformat(),
-        "user_id": random.randint(0, MAX_USER_ID),
-        "page_id": random.randint(0, MAX_PAGE_ID),
+        "Year": year,
+        "Present_Price": present_price,
+        "Kms_Driven": kms_driven,
+        "Owner": owner,
+        "Car_Age": car_age,
+        "Kms_Per_Year": kms_per_year,
+        "Fuel_Type": random.choice(FUEL_TYPES),
+        "Seller_Type": random.choice(SELLER_TYPES),
+        "Transmission": random.choice(TRANSMISSIONS),
     }
 
 
-def serialize(msg: Dict) -> bytes:
-    return json.dumps(msg).encode("utf-8")
+def main():
+    parser = argparse.ArgumentParser(description="Kafka producer for car price data")
+    parser.add_argument("--bootstrap", default="localhost:9092", help="Kafka bootstrap server")
+    parser.add_argument("--topic", default="input_car_data", help="Kafka topic name")
+    parser.add_argument("--n", type=int, default=10, help="Number of messages to send")
+    args = parser.parse_args()
+
+    producer = KafkaProducer(
+        bootstrap_servers=args.bootstrap,
+        value_serializer=lambda v: json.dumps(v).encode("utf-8")
+    )
+
+    print(f"🚗 Sending {args.n} car data messages to topic '{args.topic}'...")
+    for i in range(args.n):
+        data = generate_car_data()
+        producer.send(args.topic, value=data)
+        print(f"[{i+1}] Sent: {data}")
+
+    producer.flush()
+    producer.close()
+    print("✅ Done — all messages sent successfully.")
 
 
 if __name__ == "__main__":
