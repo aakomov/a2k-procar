@@ -1,6 +1,5 @@
 
-# Оглавление
-- [Оглавление](#оглавление)
+
 - [Структура проекта](#структура-проекта)
 - [Обработка и очистка данных](#обработка-и-очистка-данных)
     - [Yandex Cloud | Airflow \& Spark-cluster \& S3](#yandex-cloud--airflow--spark-cluster--s3)
@@ -29,12 +28,11 @@ A2K-PROCAR/
 ├───infra/                   # Инфраструктура в YC Cloud для очистки данных
 ├───infra-local/             # Инфраструктура в YC Cloud и Local для проекта
 │   ├───a2k-docker-rest/     # Манифесты Kubernetes и Docker-compose
+│   ├───airflow/             # Docker-compose для Airflow
 │   ├───grafana/             # Docker-compose для Grafana
 │   ├───kafka/               # Docker-compose для Kafka
 │   ├───minikube/            # Deploy Local Kubernetes
-│   ├───minio/               # Docker-compose для MinIO
-│   ├───mlflow/              # Docker-compose для MLflow
-│   └───prometheus/          # Docker-compose для Prometheus
+│   └───mlflow/              # Docker-compose для MLflow
 ├───infra-yc-k8s-zona/       # Deploy Yandex Cloud Kubernetes
 ├───notebooks/               # Jupyter notebooks
 ├───requirements/            # Python зависимости
@@ -468,11 +466,12 @@ Consumer
 # URLs
 ```
 http://127.0.0.1:8000/
-http://127.0.0.1:8000/docs#/
+http://127.0.0.1:8000/predict
 http://127.0.0.1:8000/metrics
+http://127.0.0.1:8000/docs#/
 http://localhost:8888/tree
 http://localhost:9091/login
 http://localhost:5000/
-prometheus http://localhost:9090/
-grafana http://localhost:3000/
+http://localhost:9090/ (prometheus)
+http://localhost:3000/ (grafana)
 ```
