@@ -46,7 +46,7 @@ def main():
         value_serializer=lambda v: json.dumps(v).encode("utf-8")
     )
 
-    print(f"🚗 Sending {args.n} car data messages to topic '{args.topic}'...")
+    print(f"Sending {args.n} car data messages to topic '{args.topic}'...")
     for i in range(args.n):
         data = generate_car_data()
         producer.send(args.topic, value=data)
@@ -54,7 +54,7 @@ def main():
 
     producer.flush()
     producer.close()
-    print("✅ Done — all messages sent successfully.")
+    print("Done — all messages sent successfully.")
 
 
 if __name__ == "__main__":

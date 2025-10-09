@@ -14,8 +14,8 @@ secrets = dotenv_values(".env")
 secrets_blacklist = ["GITHUB_TOKEN", "GITHUB_REPO", "PRIVATE_KEY_PATH"]
 
 # GitHub API токен и репозиторий
-GITHUB_TOKEN = secrets.get("GITHUB_TOKEN")  # Убедитесь, что токен есть в .env
-GITHUB_REPO = secrets.get("GITHUB_REPO")  # Убедитесь, что имя репозитория есть в .env
+GITHUB_TOKEN = secrets.get("GITHUB_TOKEN")  # Должен быть токен в .env
+GITHUB_REPO = secrets.get("GITHUB_REPO")  # Должно быть имя репозитория в .env
 
 if not GITHUB_TOKEN or not GITHUB_REPO:
     raise ValueError("GITHUB_TOKEN и GITHUB_REPO должны быть определены в .env")

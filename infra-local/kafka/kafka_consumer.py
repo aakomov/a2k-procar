@@ -30,8 +30,8 @@ def main():
         value_serializer=lambda v: json.dumps(v).encode("utf-8")
     )
 
-    print(f"🔌 Connected to Kafka at {args.bootstrap}")
-    print(f"🚀 Listening to topic '{args.input_topic}' and sending predictions to '{args.output_topic}'")
+    print(f"Connected to Kafka at {args.bootstrap}")
+    print(f"Listening to topic '{args.input_topic}' and sending predictions to '{args.output_topic}'")
 
     for msg in consumer:
         car_data = msg.value
@@ -42,13 +42,13 @@ def main():
                 if prediction is not None:
                     result = {"car_data": car_data, "predicted_price": prediction}
                     producer.send(args.output_topic, value=result)
-                    print(f"✅ Predicted: {prediction} for {car_data}")
+                    print(f"Predicted: {prediction} for {car_data}")
                 else:
-                    print(f"⚠️ No 'prediction' field in API response: {response.text}")
+                    print(f"No 'prediction' field in API response: {response.text}")
             else:
-                print(f"❌ API error {response.status_code}: {response.text}")
+                print(f"API error {response.status_code}: {response.text}")
         except Exception as e:
-            print(f"💥 Request failed: {e}")
+            print(f"Request failed: {e}")
 
 
 if __name__ == "__main__":

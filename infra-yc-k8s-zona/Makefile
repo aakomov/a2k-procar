@@ -32,5 +32,5 @@ sync-repo:
 		--exclude=infra/.terraform \
 		--exclude=*.tfstate \
 		--exclude=*.backup \
-		--exclude=*.json . yc-proxy:/home/ubuntu/otus/yc-k8s-zonal
+		--exclude=*.json . yc-proxy:/home/ubuntu/folder/yc-k8s-zonal
 		

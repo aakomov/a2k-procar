@@ -65,10 +65,10 @@ sync-repo:
 		--exclude=infra/.terraform \
 		--exclude=*.tfstate \
 		--exclude=*.backup \
-		--exclude=*.json . yc-proxy:/home/ubuntu/otus/otus-practice-data-pipeline
+		--exclude=*.json . yc-proxy:/home/ubuntu/practice-data-pipeline
 
 sync-env:
-	rsync -avz yc-proxy:/home/ubuntu/otus/otus-practice-data-pipeline/.env .env
+	rsync -avz yc-proxy:/home/ubuntu/practice-data-pipeline/.env .env
 
 airflow-cluster-mon:
 	yc logging read --group-name=default --follow
