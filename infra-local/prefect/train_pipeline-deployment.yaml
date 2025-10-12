@@ -1,0 +1,53 @@
+###
+### A complete description of a Prefect Deployment for flow 'train-car-price'
+###
+name: train-car-price
+description: null
+version: 9f18e8982e441df898c0f0a4dc3ac7ce
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+work_pool_name: null
+tags: []
+parameters: {}
+schedule: null
+schedules: []
+is_schedule_active: null
+infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: train-car-price
+manifest_path: null
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command:
+  - python
+  stream_output: true
+  working_dir: null
+  _block_document_id: 436d2685-a1e3-466e-bd62-2e877abace0b
+  _block_document_name: local-process
+  _is_anonymous: false
+  block_type_slug: process
+  _block_type_slug: process
+storage:
+  basepath: /home/notai/otus/kp_a2k/a2k-procar/infra-local/prefect
+  _block_document_id: f6f894c9-cb7d-4dbf-8400-42563a0f23d2
+  _block_document_name: local-storage
+  _is_anonymous: false
+  block_type_slug: local-file-system
+  _block_type_slug: local-file-system
+path: ''
+entrypoint: train_pipeline_prefect.py:train_pipeline
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
+timestamp: '2025-10-11T14:55:54.811220+00:00'
+triggers: []
+enforce_parameter_schema: null

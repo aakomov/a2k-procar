@@ -1,0 +1,53 @@
+###
+### A complete description of a Prefect Deployment for flow 'hello-flow'
+###
+name: hello-flow
+description: null
+version: 6bf25836c8eaceb84e9a9350cb074144
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+work_pool_name: local-pool
+tags: []
+parameters: {}
+schedule: null
+schedules: []
+is_schedule_active: null
+infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: hello-flow
+manifest_path: null
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command:
+  - python
+  stream_output: true
+  working_dir: null
+  _block_document_id: 436d2685-a1e3-466e-bd62-2e877abace0b
+  _block_document_name: local-process
+  _is_anonymous: false
+  block_type_slug: process
+  _block_type_slug: process
+storage:
+  basepath: /home/notai/otus/kp_a2k/a2k-procar/infra-local/prefect
+  _block_document_id: f6f894c9-cb7d-4dbf-8400-42563a0f23d2
+  _block_document_name: local-storage
+  _is_anonymous: false
+  block_type_slug: local-file-system
+  _block_type_slug: local-file-system
+path: ''
+entrypoint: example_flow.py:hello_flow
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
+timestamp: '2025-10-11T15:09:01.606764+00:00'
+triggers: []
+enforce_parameter_schema: null
