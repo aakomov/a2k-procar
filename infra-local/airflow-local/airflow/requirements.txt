@@ -1,0 +1,4 @@
+boto3==1.38.17
+pandas==2.2.3
+mlflow==3.4.0
+pyarrow>=16.0.0
