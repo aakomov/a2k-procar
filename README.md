@@ -4,7 +4,8 @@
 - [Обработка и очистка данных](#обработка-и-очистка-данных)
     - [Yandex Cloud | Airflow \& Spark-cluster \& S3](#yandex-cloud--airflow--spark-cluster--s3)
 - [Моделирование и обучение](#моделирование-и-обучение)
-    - [Localhost | MLFlow \& MinIO](#localhost--mlflow--minio)
+    - [Localhost | MLFlow \& MinIO \& Airflow ( ~Prefect )](#localhost--mlflow--minio--airflow--prefect-)
+      - [Image](#image)
 - [Доступ к модели](#доступ-к-модели)
   - [Localhost | FastAPI \& Docker](#localhost--fastapi--docker)
   - [Localhost | Push Docker Hub](#localhost--push-docker-hub)
@@ -28,11 +29,11 @@ A2K-PROCAR/
 ├───infra/                   # Инфраструктура в YC Cloud для очистки данных
 ├───infra-local/             # Инфраструктура в YC Cloud и Local для проекта
 │   ├───a2k-docker-rest/     # Манифесты Kubernetes и Docker-compose
-│   ├───airflow/             # Docker-compose для Airflow
+│   ├───airflow-local/       # Docker-compose для Airflow
 │   ├───grafana/             # Docker-compose для Grafana
 │   ├───kafka/               # Docker-compose для Kafka
 │   ├───minikube/            # Deploy Local Kubernetes
-│   └───mlflow/              # Docker-compose для MLflow
+│   └───mlflow/              # Docker-compose для MLflow & Minio
 ├───infra-yc-k8s-zona/       # Deploy Yandex Cloud Kubernetes
 ├───notebooks/               # Jupyter notebooks
 ├───requirements/            # Python зависимости
@@ -71,32 +72,120 @@ A2K-PROCAR/
 
 # Моделирование и обучение
 
-### Localhost | MLFlow & MinIO
+### Localhost | MLFlow & MinIO & Airflow ( ~Prefect )
+
+Запуск / останов MLFlow & MinIO
 ```bash
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar$ cd infra-local/mlflow/
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
 
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/src$ cd ../infra-local/mlflow/
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose down
-```
-Разворот mlflow minio
-![регистрация модели в mlflow](<img/14 _ разворот mlflow minio local.JPG>)
 
-```bash
+# test train
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ cd ../../src/
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/src$ python model_train_procar.py --n-estimators 50 --max-depth 7
-
 python3 model_train_procar.py --model-name url_classifier
 python model_train_procar.py --n-estimators 200 --max-depth 15
+
 ```
 
-Загрузка обученной модели в minio
-![регистрация модели в mlflow](<img/14 _ загрузка обученной модели в s3 minio local.JPG>)
+Запуск / конфигурация / останов Airflow
+```bash
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ make start
 
-Регистрация модели в mlflow
-![регистрация модели в mlflow](<img/14 регистрация модели в mlflow local 2.JPG>)
+# edit config
+/home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow/config/airflow.cfg > refresh_interval = 300 > 30
 
-![регистрация модели в mlflow](<img/14_ регистрация модели в mlflow local.JPG>)
+# for yc
+Создание AWS_ACCESS_KEY (S3) > yc > service acc > create new key
+
+#local test
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ python ../src/etl.py
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ cp ../src/etl_dag.py dags/
+
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ make stop
+```
+
+Запуск / останов Prefect (не актуально)
+```bash
+#### (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ prefect server start
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ prefect agent start -q default
+
+#### cd prefect_flows
+#### 
+#### (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow/prefect_flows$ prefect config set PREFECT_API_URL="http://127.0.0.1:4200/api"
+#### (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/mlflow/prefect_flows$ prefect config view | grep PREFECT_API_URL
+#### # PREFECT_API_URL='http://127.0.0.1:4200/api' (from profile)
+
+
+##### "prefect==2.20.18",
+##### "pydantic-settings==2.2.1",
+##### "uv==0.9.2",
+##### 
+##### 
+##### добавил версию этого скрипта, которая автоматически выполняет prefect 
+##### deployment build и prefect deployment apply, чтобы всё делалось одним запуском (без ручных CLI команд)
+
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ python setup_prefect_blocks.py
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ prefect block ls
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ prefect deployment build train_pipeline_prefect.py:train_pipeline \
+  -n "train-car-price" \
+  -q "default" \
+  -sb local-file-system/local-storage \
+  -ib process/local-process
+
+prefect deployment build example_flow.py:hello_flow \
+  -n "hello-flow" \
+  -q "default" \
+  -sb local-file-system/local-storage \
+  -ib process/local-process
+
+
+# Регистрация Flow в Prefect
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/prefect$ prefect deployment apply train_pipeline-deployment.yaml
+```
+
+#### Image
+
+Docker-compose
+![alt text](img/1_hw-06-27_docker-compose-mlflow-minio-airflow.JPG)
+
+Airflow. Чтение данных
+![alt text](img/2_hw-06-27_airflow-dag.JPG)
+
+Airflow. Подготовка фичей
+![alt text](img/3_hw-06-27_airflow-dag.JPG)
+
+Airflow. Обучение
+![alt text](img/4_hw-06-27_airflow-dag.JPG)
+
+Airflow. Оценка
+![alt text](img/5_hw-06-27_airflow-dag.JPG)
+
+Airflow. Регистрация в MLflow
+![alt text](img/6_hw-06-27_airflow-dag.JPG)
+
+MLflow. Эксперименты
+![alt text](img/7_hw-06-27_mlflow-experiments.JPG)
+
+MLflow. Сравнение запусков
+![alt text](img/8_hw-06-27_mlflow-experiments.JPG)
+
+MLflow. Информация об эксперименте
+![alt text](img/9_hw-06-27_mlflow-experiments.JPG)
+
+MLflow. Артифакты
+![alt text](img/10_hw-06-27_mlflow-experiments.JPG)
+
+Minio. Ссылка на артифакты
+![alt text](img/11_hw-06-27_minio.JPG)
+
+Minio. Итоговые результаты
+![alt text](img/12_hw-06-27_minio.JPG)
+
 
 # Доступ к модели
 
@@ -465,13 +554,14 @@ Consumer
 
 # URLs
 ```
-http://127.0.0.1:8000/
-http://127.0.0.1:8000/predict
-http://127.0.0.1:8000/metrics
-http://127.0.0.1:8000/docs#/
-http://localhost:8888/tree
-http://localhost:9091/login
-http://localhost:5000/
+http://localhost:8000/ (fastapi)
+http://localhost:8000/predict
+http://localhost:8000/metrics
+http://localhost:8000/docs#/
+http://localhost:8888/ (jupiter)
+http://localhost:9091/ (minio)
+http://localhost:5000/ (mlflow)
 http://localhost:9090/ (prometheus)
 http://localhost:3000/ (grafana)
+http://localhost:8080/ (airflow)
 ```
