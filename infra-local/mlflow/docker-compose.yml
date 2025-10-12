@@ -63,6 +63,19 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     command: mlflow server --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE} --default-artifact-root s3://mlflow/ --host 0.0.0.0
 
+  #prefect:
+  #  image: prefecthq/prefect:2-latest
+  #  container_name: prefect_server
+  #  restart: always
+  #  ports:
+  #    - "4200:4200"
+  #  environment:
+  #    - PREFECT_API_URL=http://0.0.0.0:4200/api
+  #    - PREFECT_SERVER_API_HOST=0.0.0.0
+  #  command: prefect server start
+  #  volumes:
+  #    - ./prefect_flows:/opt/prefect/flows
+
 volumes:
   mlflow_db:
   mlflow_minio:

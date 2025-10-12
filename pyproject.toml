@@ -26,11 +26,11 @@ dependencies = [
     "fastapi==0.115.0",
     "uvicorn==0.31.0",
     "pydantic==2.9.2",
-    "apache-airflow",
     "confluent-kafka",
     "prometheus-client",
     "jupyter",
     "kafka-python",
     "loguru==0.7.2",
     "invoke==2.2.0",
+    "prefect==2.20.18",
 ]

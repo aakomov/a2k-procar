@@ -15,10 +15,10 @@ feast
 fastapi
 uvicorn
 pydantic
-apache-airflow
 confluent-kafka
 prometheus-client
 jupyter
 kafka-python
 loguru
 invoke
+prefect
