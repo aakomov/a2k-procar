@@ -6,6 +6,8 @@
 - [Моделирование и обучение](#моделирование-и-обучение)
     - [Localhost | MLFlow \& MinIO \& Airflow ( ~Prefect )](#localhost--mlflow--minio--airflow--prefect-)
       - [Image](#image)
+    - [Валидация (A/B)](#валидация-ab)
+      - [Image](#image-1)
 - [Доступ к модели](#доступ-к-модели)
   - [Localhost | FastAPI \& Docker](#localhost--fastapi--docker)
   - [Localhost | Push Docker Hub](#localhost--push-docker-hub)
@@ -191,6 +193,16 @@ Minio. Итоговые результаты
 /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/src/a2k-procar-dag.py
 
 #### Image
+
+Добавление в пайплайн этапа валидации
+![alt text](img/1_hw-07-32_airflow-ab.JPG)
+
+Регистрация в MLflow результатов валидации
+![alt text](img/2_hw-07-32_mlflow-ab.JPG)
+
+Регистрация в Minio результатов валидации
+![alt text](img/3_hw-07-32_minio-ab.JPG)
+
 
 # Доступ к модели
 
