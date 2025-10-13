@@ -186,6 +186,11 @@ Minio. Ссылка на артифакты
 Minio. Итоговые результаты
 ![alt text](img/12_hw-06-27_minio.JPG)
 
+### Валидация (A/B)
+Добавлен этап валидации в скрипт
+/home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/src/a2k-procar-dag.py
+
+#### Image
 
 # Доступ к модели
 
