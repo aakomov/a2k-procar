@@ -18,6 +18,8 @@
   - [Localhost Minikube | Prometheus \& Grafana](#localhost-minikube--prometheus--grafana)
 - [Потоковая обработка](#потоковая-обработка)
   - [Localhost | Kafka](#localhost--kafka)
+- [Алертинг](#алертинг)
+  - [img](#img)
 - [URLs](#urls)
 
 
@@ -488,10 +490,15 @@ minikube start
 
 helm list
 
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ make helm-deploy
+
 (otus-ml-skel) user@host:~/myfolder/39/otus-ml-skel/service$ 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
+
+# если две команды выше уже были выполнены, то можно просто выполнить эту:
 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n default
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n a2k-procar
 
 (otus-ml-skel) user@host:~/myfolder/39/otus-ml-skel/service$ kubectl --namespace default get secrets monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 (otus-ml-skel) user@host:~/myfolder/39/otus-ml-skel/service$ kubectl --namespace default get pods
@@ -499,10 +506,13 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n 
 
 
 kubectl apply -f monitoring-a2k-procar.yml
+(a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/a2k-docker-rest/k8s$ kubectl apply -f monitoring-a2k-procar.yaml
 kubectl get servicemonitors -n monitoring
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n a2k-procar 9090:9090
 http://localhost:9090
 kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
+kubectl port-forward svc/monitoring-grafana -n a2k-procar 3000:80
 http://localhost:3000
 
 Войти (логин admin, пароль можно узнать:
@@ -527,8 +537,12 @@ curl -X POST "http://localhost:8000/predict" \
 ### inikube ssh docker rmi aakomov/a2k-procar:prod
 
 
-kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
+(a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/namespace.yaml
+(a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/deployment.yaml
+(a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/service.yaml
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl apply -f k8s/monitoring-a2k-procar.yaml
+
+kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
 
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ kubectl delete -f k8s/monitoring-a2k-procar.yaml
 (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/a2k-docker-rest$ helm uninstall monitoring -n a2k-procar
@@ -553,6 +567,9 @@ kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
 # Потоковая обработка
 ## Localhost | Kafka
 
+infra-local\kafka\docker-compose up
+
+
 ```
 Разворот .\a2k-procar\infra-local\kafka\docker-compose.yml
 ```
@@ -567,6 +584,64 @@ kubectl port-forward svc/a2k-procar -n a2k-procar 8000:80
 
 Consumer
 ![alt text](<img/kafka 4.JPG>)
+
+# Алертинг
+
+Скрипты и изменеия внесены в рамках коммита "alerting".
+
+## img
+
+Срабатывание алерта в Grafana
+![alt text](img/1_alert.JPG)
+
+![alt text](img/2_alert.JPG)
+
+Мониторинг при нагрузке
+![alt text](img/4_alert.JPG)
+
+Информация об использовании кастомного endpoint
+![alt text](img/5_alert.JPG)
+
+Очередь в Kafka
+![alt text](img/6_alert.JPG)
+
+Поднятые поды при нагрузке
+![alt text](img/7_alert.JPG)
+
+
+```bash
+
+kubectl create ns monitoring
+
+helm install kps prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --set grafana.adminPassword='admin' \
+  --set grafana.defaultDashboardsTimezone='browser' \
+  --set prometheus.prometheusSpec.scrapeInterval='15s'
+
+kubectl port-forward svc/kps-kube-prometheus-stack-prometheus -n monitoring 9090:9090
+kubectl port-forward svc/kps-grafana -n monitoring 3000:80
+
+eval $(minikube -p minikube docker-env)
+docker build -t ml-infer:0.1 .
+
+docker run --rm ml-infer:0.1
+
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/servicemonitor.yaml
+
+kubectl rollout status deploy/ml-infer
+kubectl get pods
+
+kubectl port-forward svc/ml-infer 8080:8000
+
+chmod +x load_test.sh
+./load_test.sh 8080 200
+
+helm uninstall kps -n monitoring
+
+```
 
 
 # URLs

@@ -7,6 +7,11 @@ metadata:
     app: a2k-procar
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: a2k-procar
@@ -16,14 +21,41 @@ spec:
         app: a2k-procar
     spec:
       containers:
-        - name: a2k-procar
-          image: aakomov/a2k-procar:prod
-          ports:
-            - containerPort: 8000
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "1024Mi"
-              cpu: "1000m"
+      - name: a2k-procar
+        image: aakomov/a2k-procar:prod
+        ports:
+        - containerPort: 8000
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "150m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: a2k-procar-hpa
+  namespace: a2k-procar
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: a2k-procar
+  minReplicas: 4
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

@@ -1,0 +1,100 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Всего запросов /predict",
+      "targets": [
+        {
+          "expr": "sum(increase(procar_prediction_total[5m]))",
+          "refId": "A"
+        }
+      ],
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 }
+    },
+    {
+      "type": "stat",
+      "title": "Ошибки предсказаний",
+      "targets": [
+        {
+          "expr": "sum(increase(procar_prediction_errors_total[5m]))",
+          "refId": "B"
+        }
+      ],
+      "id": 2,
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 6 },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Время отклика модели (сек)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(procar_prediction_latency_seconds_bucket[5m])) by (le))",
+          "refId": "C"
+        }
+      ],
+      "id": 3,
+      "gridPos": { "x": 0, "y": 6, "w": 16, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Количество подов a2k-procar",
+      "targets": [
+        {
+          "expr": "count(kube_pod_info{pod=~'a2k-procar.*'})",
+          "refId": "A"
+        }
+      ],
+      "id": 4,
+      "gridPos": { "x": 0, "y": 14, "w": 8, "h": 6 }
+    },
+    {
+      "type": "gauge",
+      "title": "Загрузка CPU (%)",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container='a2k-procar'}[5m])) / sum(kube_pod_container_resource_limits{container='a2k-procar', resource='cpu'}) * 100",
+          "refId": "A"
+        }
+      ],
+      "id": 5,
+      "gridPos": { "x": 8, "y": 14, "w": 8, "h": 6 }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["procar", "ml", "monitoring"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30m", "to": "now" },
+  "timezone": "browser",
+  "title": "A2K ProCar Monitoring Dashboard",
+  "version": 1
+}
