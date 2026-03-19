@@ -12,9 +12,9 @@ def test_preprocessing_local():
     # os.makedirs('output_data', exist_ok=True)
     
     # 1. Загрузка локального файла
-    input_file = '/home/notai/otus/kp_a2k/a2k-procar/data/input_data/car data.csv'
-    output_file = '/home/notai/otus/kp_a2k/a2k-procar/data/output_data/car_data_cleaned.parquet'
-    stats_file = '/home/notai/otus/kp_a2k/a2k-procar/data/output_data/processing_stats.parquet'
+    input_file = '../data/input_data/car data.csv'
+    output_file = '../data/output_data/car_data_cleaned.parquet'
+    stats_file = '../data/output_data/processing_stats.parquet'
     
     print(f"Загрузка данных из файла: {input_file}")
     
@@ -29,8 +29,8 @@ def test_preprocessing_local():
         print(df.isnull().sum())
         
     except FileNotFoundError:
-        print(f"❌ Файл {input_file} не найден!")
-        print("Убедитесь, что файл находится в той же директории, что и скрипт")
+        print(f"Файл {input_file} не найден")
+        print("Необходимо проверить, что файл находится в той же директории, что и скрипт")
         return
     
     # 2. Обработка данных
@@ -40,14 +40,14 @@ def test_preprocessing_local():
     try:
         cleaned_df = preprocess_data(df)
         
-        print("Обработка завершена успешно!")
+        print("Обработка завершена успешно")
         print(f"Размер очищенных данных: {cleaned_df.shape}")
         print(f"Удалено записей: {len(df) - len(cleaned_df)}")
         
         # 3. Сохранение в Parquet
         print("\nСохранение результатов в Parquet...")
         cleaned_df.to_parquet(output_file, index=False, engine='pyarrow')
-        print(f"✅ Данные сохранены в: {output_file}")
+        print(f"Данные сохранены в: {output_file}")
         
         # 4. Сохранение статистики обработки
         stats_data = {
@@ -61,7 +61,7 @@ def test_preprocessing_local():
         
         stats_df = pd.DataFrame(stats_data)
         stats_df.to_parquet(stats_file, index=False, engine='pyarrow')
-        print(f"✅ Статистика сохранена в: {stats_file}")
+        print(f"Статистика сохранена в: {stats_file}")
         
         # 5. Чтение и проверка сохраненного файла
         print("\n" + "="*50)
@@ -70,7 +70,7 @@ def test_preprocessing_local():
         # Чтение Parquet файла
         read_df = pd.read_parquet(output_file)
         
-        print(f"✅ Файл прочитан успешно. Размер: {read_df.shape}")
+        print(f"Файл прочитан успешно. Размер: {read_df.shape}")
         print("\nПервые 5 строк обработанных данных:")
         print(read_df.head())
         
@@ -101,16 +101,16 @@ def test_preprocessing_local():
                 missing = read_df[col].isnull().sum()
                 print(f"Пропуски в '{col}': {missing}")
                 if missing > 0:
-                    print(f"❌ ВНИМАНИЕ: Найдены пропуски в {col}!")
+                    print(f"ВНИМАНИЕ: Найдены пропуски в {col}!")
         
         print("\n" + "="*50)
-        print("✅ Тестирование завершено успешно!")
+        print("Тестирование завершено успешно")
         print(f"Исходные данные: {df.shape}")
         print(f"Очищенные данные: {read_df.shape}")
         print(f"Файл результатов: {output_file}")
         
     except Exception as e:
-        print(f"❌ Ошибка при обработке данных: {e}")
+        print(f"Ошибка при обработке данных: {e}")
         import traceback
         traceback.print_exc()
 
