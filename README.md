@@ -44,7 +44,87 @@ A2K-PROCAR/
 └───src/                     # Python-скрипты (train*, preprocess* и т.д.)
 ```
 
+# Полный ЖЦ ML-модели
+
+0. см. раздел "Предварительная настройка окружения"
+    + venv
+1. Подготовка инфраструктуры
+    + Docker
+    + Minikube
+    - DVC
+    + MLFlow & MinIO
+      + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar$ cd infra-local/mlflow/
+      + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
+    - Airflow
+      - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ make start
+      - /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow/config/airflow.cfg > refresh_interval = 300 > 30
+    - Redis (Online Feature Store)
+    - Kafka
+    - Prometheus
+    - Grafana
+2. Обработка и очистка данных. Инжиниринг данных и векторизация признаков (Data & Feature Engineering)
+    - Data Versioning (DVC). Нужно версионировать данные, на которых училась модель, иначе эксперименты невоспроизводимы.
+    - Feast (Offline): Сохранение вычисленных признаков в MinIO через Feast.
+    + (.venv) notai@notaihost:~/Sandbox/a2k-procar/src$ python3 test_preprocessing_local.py
+3. Моделирование и обучение. Обучение и эксперименты (Training & Experimentation)
+    - Скрипт дергает historical features из Feast.
+    - Логирование метрик, параметров и самой модели в MLFlow.
+    + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ cd ../../src/
+    + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/src$ python model_train_procar.py --n-estimators 50 --max-depth 7
+4. Валидация и регистрация модели (Validation & Registry).
+    - Offline-валидация (проверка метрик на hold-out выборке).
+    - Model Validation (Great Expectations или кастомные тесты). Проверка модели на адекватность (например, метрикаAccuracy > 0.8), чтобы в прод не ушла сломанная модель.
+    - Model Signing / Scanning. Проверка модели на наличие backdoor'ов (например, с помощью art — Adversarial Robustness Toolbox) перед тем, как подписать её и положить в Registry.
+    - Переход модели в статус Production в MLFlow
+    - /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/src/a2k-procar-dag.py
+5. Оркестрация (Airflow DAGs)
+    - DAG должен выглядеть так: Скачать данные -> Очистить -> Обновить Feast Offline -> Обучить модель -> Провалидировать -> Зарегистрировать в MLFlow -> (опционально) задеплоить
+    - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ python ../src/etl.py
+    - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ cp ../src/etl_dag.py dags/
+6. Доступ к модели. Развертывание (CI/CD & Deployment)
+    - FastAPI + Docker
+    - CI/CD Pipeline (GitLab CI / GitHub Actions). По коммиту или по успеху Airflow-джобы должен собираться Docker-образ с новой моделью (pulled из MLFlow) и деплоиться в Minikube (через Helm)
+    - см. раздел "Доступ к модели"
+7. Online-инференс (Serving). Потоковая обработка
+    - FastAPI поднимается в Minikube.
+    - Feast (Online): При получении REST/gRPC запроса FastAPI идет в Redis за фичами.
+    - Kafka здесь выступает как источник событий: новые данные прилетают в Kafka -> скрипт обновляет Online Store в Feast -> модель может делать предсказания в реальном времени.
+    - см. раздел "Потоковая обработка"
+8. Инференс и A/B тестирование (В проде)
+    - Запуск двух версий FastAPI сервисов (например, v1 и v2) в Minikube. Istio или простой NGINX ингресс раскидывает трафик 50/50. Сбор логов предсказаний
+9. Мониторинг (System + ML Monitoring)
+    - Infrastructure Monitoring: Prometheus + Grafana следят за CPU/RAM/Latency FastAPI
+    - ML Monitoring (Data & Concept Drift). Например использовать инструменты типа Evidently AI или WhyLabs. Они смотрят: "Та ли статистика у признаков сейчас (в проде), какой была при обучении?". Если нет — это Data Drift.
+    - см. раздел "Мониторинг"
+10. Алертинг и триггер ретрейна (Feedback Loop)
+    - Алерты в Grafana (или PagerDuty/Telegram) на статус сервисов, Data Drift > 10%
+    - Continuous Training (CT). Сигнал о дрифте из Grafana/Kafka должен триггерить новый запуск Airflow DAG (возвращаемся на Этап 5), чтобы переобучить модель на свежих данных.
+    - см. раздел "Алертинг"
+
+# Предварительная настройка окружения
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+# проверить, все ли пакеты нужны в requirements.txt
+pip install -r requirements.txt # pip install --no-cache-dir -r requirements.txt
+```
+
+# Sorce | Links
+Забрать схему mlprocess из 
+- https://habr.com/ru/companies/ruvds/articles/990814/
+- https://habr.com/ru/companies/itsumma/articles/782020/
+
 # Обработка и очистка данных 
+
+### Локальный запуск
+```bash
+(.venv) notai@notaihost:~/Sandbox/a2k-procar/src$ python3 test_preprocessing_local.py
+```
+
+
+### Запуск в облаке | Yandex Cloud | Airflow & Spark-cluster & S3  
 
 **Используемый каталог**
 ```
