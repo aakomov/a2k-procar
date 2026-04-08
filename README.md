@@ -52,6 +52,7 @@ A2K-PROCAR/
     + Docker
     + Minikube
     - DVC
+    + Feast (см. раздел Feast)
     + MLFlow & MinIO
       + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar$ cd infra-local/mlflow/
       + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
@@ -122,7 +123,16 @@ pip install -r requirements.txt # pip install --no-cache-dir -r requirements.txt
 ```bash
 (.venv) notai@notaihost:~/Sandbox/a2k-procar/src$ python3 test_preprocessing_local.py
 ```
+### Feast
 
+```bash
+устанавливаем зависимости pip install -r requirements/requirements-feast.txt
+ставим sqllite sudo apt-get install sqlite3
+запускаем feast apply (make apply)
+копируем путь до online_store.db
+подключаемся к БД (через Database Client) SQLLite
+запускаем feast ui (make ui)
+```
 
 ### Запуск в облаке | Yandex Cloud | Airflow & Spark-cluster & S3  
 
