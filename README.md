@@ -56,9 +56,9 @@ A2K-PROCAR/
     + MLFlow & MinIO
       + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar$ cd infra-local/mlflow/
       + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ docker-compose up -d --build
-    - Airflow
-      - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ make start
-      - /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow/config/airflow.cfg > refresh_interval = 300 > 30
+    + Airflow
+      + (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ make start
+      + /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow/config/airflow.cfg > refresh_interval = 300 > 30
     - Redis (Online Feature Store)
     - Kafka
     - Prometheus
@@ -69,7 +69,7 @@ A2K-PROCAR/
     + (.venv) notai@notaihost:~/Sandbox/a2k-procar/src$ python3 test_preprocessing_local.py
 3. Моделирование и обучение. Обучение и эксперименты (Training & Experimentation)
     - Скрипт дергает historical features из Feast.
-    - Логирование метрик, параметров и самой модели в MLFlow.
+    + Логирование метрик, параметров и самой модели в MLFlow.
     + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/infra-local/mlflow$ cd ../../src/
     + (a2k-procar) user@host:~/myfolder/kp_a2k/a2k-procar/src$ python model_train_procar.py --n-estimators 50 --max-depth 7
 4. Валидация и регистрация модели (Validation & Registry).
@@ -80,8 +80,7 @@ A2K-PROCAR/
     - /home/notai/otus/kp_a2k/a2k-procar/infra-local/airflow-local/src/a2k-procar-dag.py
 5. Оркестрация (Airflow DAGs)
     - DAG должен выглядеть так: Скачать данные -> Очистить -> Обновить Feast Offline -> Обучить модель -> Провалидировать -> Зарегистрировать в MLFlow -> (опционально) задеплоить
-    - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ python ../src/etl.py
-    - (a2k-procar) notai@notaihost:~/otus/kp_a2k/a2k-procar/infra-local/airflow-local/airflow$ cp ../src/etl_dag.py dags/
+    + /home/notai/Sandbox/a2k-procar/infra-local/airflow-local/src/a2k-procar-dag.py
 6. Доступ к модели. Развертывание (CI/CD & Deployment)
     - FastAPI + Docker
     - CI/CD Pipeline (GitLab CI / GitHub Actions). По коммиту или по успеху Airflow-джобы должен собираться Docker-образ с новой моделью (pulled из MLFlow) и деплоиться в Minikube (через Helm)
@@ -741,8 +740,8 @@ http://localhost:8000/predict
 http://localhost:8000/metrics
 http://localhost:8000/docs#/
 http://localhost:8888/ (jupiter)
-http://localhost:9091/ (minio)
-http://localhost:5000/ (mlflow)
+http://localhost:9091/ (minio / http://192.168.222.158:9091)
+http://localhost:5000/ (mlflow / http://192.168.222.158:5000)
 http://localhost:9090/ (prometheus)
 http://localhost:3000/ (grafana)
 http://localhost:8080/ (airflow)

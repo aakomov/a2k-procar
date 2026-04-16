@@ -18,6 +18,10 @@ import mlflow.sklearn
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
+# S3
+BUCKET = 'mlflow'
+DATA_PRQ = 'output_data/car_data_cleaned.parquet'
+
 # Конфигурация v8
 MINIO_ENDPOINT = 'http://192.168.222.158:9090'
 MLFLOW_TRACKING_URI = 'http://192.168.222.158:5000'
@@ -61,7 +65,7 @@ def read_car_data():
             verify=False
         )
         
-        response = s3_client.get_object(Bucket='mlflow', Key='part-00000-03df2316-ffcb-44b7-8018-afb9a13d66f7-c000.snappy.parquet')
+        response = s3_client.get_object(Bucket=BUCKET, Key=DATA_PRQ)
         df = pd.read_parquet(BytesIO(response['Body'].read()))
         
         logging.info(f"Данные прочитаны: {df.shape[0]} автомобилей, {df.shape[1]} характеристик")
