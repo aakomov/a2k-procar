@@ -1,0 +1,28 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: server-failure-model
+  namespace: seldon
+spec:
+  predictors:
+  - name: default
+    replicas: 1
+    graph:
+      name: classifier
+      implementation: MLFLOW_SERVER
+      modelUri: models:/server-failure-model/1
+      envSecretRefName: seldon-s3-secret
+    componentSpecs:
+    - spec:
+        containers:
+        - name: classifier
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+          env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://192.168.49.1:5000"

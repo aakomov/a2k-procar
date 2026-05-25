@@ -1,0 +1,14 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: infra-degradation-predictor
+  namespace: seldon
+spec:
+  name: infra-degradation-predictor
+  predictors:
+  - name: default
+    replicas: 1
+    graph:
+      name: model
+      implementation: SKLEARN_SERVER
+      modelUri: models:/m-aba485cd9b5f491fb9c4a671bfcc0166

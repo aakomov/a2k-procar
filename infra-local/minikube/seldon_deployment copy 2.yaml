@@ -1,0 +1,14 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: server-failure-model
+  namespace: seldon
+spec:
+  predictors:
+  - name: default
+    replicas: 1
+    graph:
+      name: classifier
+      implementation: MLFLOW_SERVER    # Seldon умеет в MLflow из коробки
+      modelUri: s3://mlflow/2/models/m-75273b2fd1024b5787b55a7cd4d202a7/artifacts
+      envSecretRefName: seldon-s3-secret
